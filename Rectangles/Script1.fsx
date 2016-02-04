@@ -1,34 +1,41 @@
-﻿open System
+﻿#I @"../packages/" 
 
-type Rectangle =
-    { Top: int
-      Left: int
-      Width: int
-      Height: int }
+#r "NUnit.3.0.1/lib/net45/nunit.framework.dll"
+#r "Fuchu.1.0.3.0/lib/Fuchu.dll"
+#r "FsCheck.2.2.4/lib/net45/FsCheck.dll"
+#r "Fuchu.FsCheck.1.0.3.0/lib/Fuchu.FsCheck.dll"
 
-let intersect (first:Rectangle) (second:Rectangle) = 
-    if (first.Left + first.Width < second.Left) ||
-        (second.Left + second.Width < first.Left) ||
-        (first.Top + first.Height < second.Top) ||
-        (second.Top + second.Height < first.Top) then None
-    else
-        let left = Math.Max(first.Left, second.Left)
-        let top = Math.Max(first.Top, second.Top)
-        Some(
-            { Left=left
-              Top=top
-              Width=Math.Min(first.Left+first.Width, second.Left+second.Width)-left
-              Height=Math.Min(first.Top+first.Height, second.Top+second.Height)-top
-            })
+#r @"bin/debug/rectangles.dll"
 
-let first = { Left=8
-              Top=8
-              Width=4
-              Height=4 }
+open System
+open NUnit.Framework
+open Fuchu
+open FsCheck
+open Elements
+open ImageDrawing
 
-let second = { Left=8
-               Top=8
-               Width=4
-               Height=4 }
+let chooseRectangle widthMax heightMax offset =
+    gen {
+        let! left = Gen.choose(0, widthMax-offset)
+        let! top = Gen.choose(0, heightMax-offset)
+        let! width = Gen.choose(offset, widthMax-left)
+        let! height = Gen.choose(offset, heightMax-top)
+        return { Left=left
+                 Top=top
+                 Width=width
+                 Height=height
+                }
+    }
 
-intersect first second
+let folder = IO.Path.Combine(IO.Path.GetTempPath(), DateTime.Now.Ticks.ToString())
+IO.Directory.CreateDirectory folder
+
+let width = 400
+let height = 200
+Gen.sample 0 1000 (chooseRectangle width height 10)
+|> List.pairwise 
+|> List.iteri (fun i (r1, r2) -> 
+        use image = createImage width height r1 r2
+        image.Save(IO.Path.Combine(folder, sprintf "%i.gif" i),Drawing.Imaging.ImageFormat.Gif))
+
+IO.Directory.Delete(folder,true)
