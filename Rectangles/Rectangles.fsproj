@@ -59,7 +59,7 @@
     <Compile Include="Rectangles.fs" />
     <Compile Include="Image.fs" />
     <Compile Include="AssemblyInfo.fs" />
-    <None Include="Script1.fsx" />
+    <None Include="Run.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +77,10 @@
     </Reference>
     <Reference Include="Fuchu.FsCheck">
       <HintPath>..\packages\Fuchu.FsCheck.1.0.3.0\lib\Fuchu.FsCheck.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Magick.NET-Q16-AnyCPU">
+      <HintPath>..\packages\Magick.NET-Q16-AnyCPU.7.0.0.0101\lib\net40-client\Magick.NET-Q16-AnyCPU.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
